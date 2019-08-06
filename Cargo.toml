@@ -1,0 +1,11 @@
+[package]
+name = "obliviate"
+version = "0.1.0"
+authors = ["Paolo Marino"]
+edition = "2018"
+
+[dependencies]
+clap = "2.33.0"
+log = "0.4.6"
+simple_logger = "1.3.0"
+humansize = "1.0.1"

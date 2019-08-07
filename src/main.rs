@@ -6,7 +6,7 @@ extern crate humansize;
 extern crate simple_logger;
 
 use std::fs::{read_dir, DirEntry};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::{Duration, SystemTime};
 
 use clap::{App, Arg};
@@ -38,7 +38,7 @@ fn delete_files(collected_files: Vec<CollectedFile>, dry_run: bool) {
     );
 }
 
-fn find_files_to_delete(folder_path: &Path, age: &str) -> Vec<CollectedFile> {
+fn find_files_to_delete(folder_path: PathBuf, age: &str) -> Vec<CollectedFile> {
     let dir_content = read_dir(folder_path).unwrap();
     let today = SystemTime::now();
 
@@ -53,7 +53,7 @@ fn find_files_to_delete(folder_path: &Path, age: &str) -> Vec<CollectedFile> {
 
     let files_in_folders = folders
         .into_iter()
-        .flat_map(|entry| find_files_to_delete(entry.path().as_path(), age));
+        .flat_map(|entry| find_files_to_delete(entry.path(), age));
 
     let files_to_delete = files
         .into_iter()
@@ -121,7 +121,7 @@ fn main() {
 
     info!("Reading folder: {}", start_path);
 
-    let files_to_delete = find_files_to_delete(Path::new(start_path), age);
+    let files_to_delete = find_files_to_delete(PathBuf::from(start_path), age);
 
     delete_files(files_to_delete, dry_run);
 }

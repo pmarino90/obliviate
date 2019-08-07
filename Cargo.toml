@@ -1,12 +1,12 @@
 [package]
 name = "obliviate"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Paolo Marino"]
 edition = "2018"
 readme = "README.md"
 license = "MIT"
-license-file = "LICENSE.md"
 description = "Small utility to delete files older than a certain amount of days."
+repository = "https://github.com/pmarino90/obliviate"
 
 [dependencies]
 clap = "2.33.0"

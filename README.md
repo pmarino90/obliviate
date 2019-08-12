@@ -4,6 +4,10 @@ Small utility to delete files older than a certain amount of days.
 
 Works in its basic functionalities, however error handling is not perfect.
 
+## How to install
+At the moment is possible to install using `cargo install obliviate` or building from source.
+I am also thinking to upload the binary release on Github as well.
+
 ## Usage
 
 ```
@@ -26,3 +30,11 @@ OPTIONS:
 ARGS:
     <PATH>    Path where to look for file to delete
 ```
+
+## Note
+The utility has been only tested on macOS 10.14.5. However the standard library is used so it should work
+on other platforms as well.
+
+## Contribute
+Bug or feature requests are more than welcome, I will try to followup on them. 
+Also PRs are welcome in case you feel you want to fix/add features. 

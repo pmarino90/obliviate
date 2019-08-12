@@ -11,6 +11,7 @@ use std::time::{Duration, SystemTime};
 
 use clap::{App, Arg};
 use humansize::{file_size_opts as options, FileSize};
+use log::Level;
 
 const DAY: u64 = 86400;
 
@@ -33,7 +34,7 @@ fn delete_files(collected_files: Vec<CollectedFile>, dry_run: bool) {
     }
 
     info!(
-        "Deleted {} bytes.",
+        "Deleted {}.",
         deleted_bytes.file_size(options::DECIMAL).unwrap()
     );
 }
@@ -100,24 +101,28 @@ fn main() {
         )
         .arg(
             Arg::with_name("PATH")
-                .help("Path where to look for file to delete")
+                .help("Path where to look for file to delete.")
                 .required(true)
                 .index(1),
         )
         .arg(
             Arg::with_name("verbose")
                 .short("v")
-                .help("Sets the level of verbosity"),
+                .long("verbose")
+                .help("Outputs verbose logs to track which files are deleted."),
         )
         .get_matches();
 
-    simple_logger::init().unwrap();
-
     let age = matches.value_of("age").unwrap_or("30");
     let dry_run = matches.is_present("dry-run");
+    let verbose = matches.is_present("verbose");
+    let log_level = if verbose { Level::Trace } else { Level::Info };
+
     let start_path = matches
         .value_of("PATH")
         .expect("A path is expected to start looking for files.");
+
+    simple_logger::init_with_level(log_level).unwrap();
 
     info!("Reading folder: {}", start_path);
 

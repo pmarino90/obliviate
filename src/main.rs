@@ -20,14 +20,35 @@ struct CollectedFile {
     size: u64,
 }
 
-fn delete_files(collected_files: Vec<CollectedFile>, dry_run: bool) {
+fn delete_empty_folders(start_path: &PathBuf, path: &PathBuf) {
+    let is_folder_empty = |path: &PathBuf| {
+        path.read_dir()
+            .map(|mut i| i.next().is_none())
+            .unwrap_or(false)
+    };
+
+    if is_folder_empty(&path) && path != start_path {
+        trace!("Removing folder {:?}", path);
+        std::fs::remove_dir(path).unwrap();
+        trace!("Folder removed");
+
+        let parent_folder = path.parent().unwrap().to_path_buf();
+        delete_empty_folders(&start_path, &parent_folder);
+    }
+}
+
+fn delete_files(start_path: PathBuf, collected_files: Vec<CollectedFile>, dry_run: bool) {
     let mut deleted_bytes = 0;
 
     for file in collected_files {
         trace!("Removing {:?}", file.path);
+
         if !dry_run {
-            std::fs::remove_file(file.path).unwrap();
+            std::fs::remove_file(&file.path).unwrap();
             trace!("File removed");
+
+            let parent_folder = file.path.parent().unwrap().to_path_buf();
+            delete_empty_folders(&start_path, &parent_folder);
         }
 
         deleted_bytes += file.size;
@@ -128,5 +149,5 @@ fn main() {
 
     let files_to_delete = find_files_to_delete(PathBuf::from(start_path), age);
 
-    delete_files(files_to_delete, dry_run);
+    delete_files(PathBuf::from(start_path), files_to_delete, dry_run);
 }

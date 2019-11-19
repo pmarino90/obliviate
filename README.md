@@ -26,3 +26,13 @@ OPTIONS:
 ARGS:
     <PATH>    Path where to look for file to delete
 ```
+
+## Changelog
+
+`0.1.2`
+
+- Main usable version
+
+`0.1.3`
+
+- Remove empty folder after removing files

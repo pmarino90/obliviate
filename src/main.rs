@@ -63,6 +63,9 @@ fn delete_files(start_path: PathBuf, collected_files: Vec<CollectedFile>, dry_ru
 fn find_files_to_delete(folder_path: PathBuf, age: &str) -> Vec<CollectedFile> {
     let dir_content = read_dir(folder_path).unwrap();
     let today = SystemTime::now();
+    let days_ago = (today - Duration::from_secs(age.parse::<u64>().unwrap_or(30) * DAY))
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
 
     let files_and_folders = dir_content.map(|result| {
         let entry = result.unwrap();
@@ -81,12 +84,9 @@ fn find_files_to_delete(folder_path: PathBuf, age: &str) -> Vec<CollectedFile> {
         .into_iter()
         .filter(|entry| {
             let metadata = entry.metadata().unwrap();
-            let days_ago = (today - Duration::from_secs(age.parse::<u64>().unwrap_or(30) * DAY))
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap();
             let created_time = metadata
                 .created()
-                .unwrap()
+                .unwrap_or(metadata.modified().expect("The entry does not have a created or modified time"))
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap();
 

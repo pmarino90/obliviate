@@ -11,25 +11,23 @@ I am also thinking to upload the binary release on Github as well.
 
 ## Usage
 
-```
-Obliviate 0.1.0
+```text
+Obliviate
 Paolo Marino
-Simple utility that removes file older than a cerain amount of days.
+Simple utility that removes file older than a certain amount of days.
 
-USAGE:
-    obliviate [FLAGS] [OPTIONS] <PATH>
+Usage: obliviate [OPTIONS] <PATH>
 
-FLAGS:
-    -d, --dry-run    When provided no files are deleted.
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-    -v               Sets the level of verbosity
+Arguments:
+  <PATH>  Path where to look for files to delete.
 
-OPTIONS:
-    -a, --age <AGE>    Number of days the file should be old to be removed. [default: 30]
+Options:
+  -a, --age <AGE>  Number of days the file should be old to be removed. [default: 30]
+  -d, --dry-run    When provided no files are deleted.
+  -v, --verbose    Outputs verbose logs to track which files are deleted.
+  -h, --help       Print help
+  -V, --version    Print version
 
-ARGS:
-    <PATH>    Path where to look for file to delete
 ```
 
 ## Changelog

@@ -12,7 +12,7 @@ I am also thinking to upload the binary release on Github as well.
 ## Usage
 
 ```text
-Obliviate 0.1.0
+Obliviate
 Paolo Marino
 Simple utility that removes file older than a certain amount of days.
 

@@ -9,8 +9,8 @@ use std::fs::{read_dir, DirEntry};
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime};
 
-use clap::{App, Arg};
-use humansize::{file_size_opts as options, FileSize};
+use clap::{Arg, Command};
+use humansize::{format_size, DECIMAL};
 use log::Level;
 
 const DAY: u64 = 86400;
@@ -56,11 +56,11 @@ fn delete_files(start_path: PathBuf, collected_files: Vec<CollectedFile>, dry_ru
 
     info!(
         "Deleted {}.",
-        deleted_bytes.file_size(options::DECIMAL).unwrap()
+        format_size(deleted_bytes, DECIMAL)
     );
 }
 
-fn find_files_to_delete(folder_path: PathBuf, age: &str) -> Vec<CollectedFile> {
+fn find_files_to_delete(folder_path: PathBuf, age: u64) -> Vec<CollectedFile> {
     let dir_content = read_dir(folder_path).unwrap();
     let today = SystemTime::now();
     let days_ago = (today - Duration::from_secs(age.parse::<u64>().unwrap_or(30) * DAY))
@@ -101,46 +101,51 @@ fn find_files_to_delete(folder_path: PathBuf, age: &str) -> Vec<CollectedFile> {
 }
 
 fn main() {
-    let matches = App::new("Obliviate")
+    let matches = Command::new("cargo")
         .version(crate_version!())
         .author("Paolo Marino")
-        .about("Simple utility that removes file older than a cerain amount of days.")
+        .about("Simple utility that removes file older than a certain amount of days.")
         .arg(
-            Arg::with_name("age")
-                .short("a")
+            Arg::new("age")
+                .short('a')
                 .long("age")
+                .value_parser(value_parser!(u64))
                 .value_name("AGE")
                 .help("Number of days the file should be old to be removed.")
-                .default_value("30")
-                .takes_value(true),
+                .num_args(1)
+                .default_value("30"),
         )
         .arg(
-            Arg::with_name("dry-run")
-                .short("d")
+            Arg::new("dry-run")
+                .short('d')
                 .long("dry-run")
+                .num_args(0)
                 .help("When provided no files are deleted."),
         )
         .arg(
-            Arg::with_name("PATH")
-                .help("Path where to look for file to delete.")
+            Arg::new("PATH")
+                .help("Path where to look for files to delete.")
                 .required(true)
+                .num_args(1)
                 .index(1),
         )
         .arg(
-            Arg::with_name("verbose")
-                .short("v")
+            Arg::new("verbose")
+                .short('v')
                 .long("verbose")
+                .num_args(0)
                 .help("Outputs verbose logs to track which files are deleted."),
         )
         .get_matches();
 
-    let age = matches.value_of("age").unwrap_or("30");
-    let dry_run = matches.is_present("dry-run");
-    let verbose = matches.is_present("verbose");
+    // NOTE: This will always return Some(value) if default_value has been set.
+    let age: u64 = *matches.get_one("age").expect("Age option should always exist");
+    let dry_run = matches.contains_id("dry-run");
+    let verbose = matches.contains_id("verbose");
     let log_level = if verbose { Level::Trace } else { Level::Info };
 
-    let start_path = matches
-        .value_of("PATH")
+    let start_path: &String = matches
+        .get_one::<String>("PATH")
         .expect("A path is expected to start looking for files.");
 
     simple_logger::init_with_level(log_level).unwrap();

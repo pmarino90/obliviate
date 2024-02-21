@@ -103,7 +103,7 @@ fn find_files_to_delete(folder_path: PathBuf, age: u64) -> Vec<CollectedFile> {
 fn main() {
     let matches = Command::new("cargo")
         .version(crate_version!())
-        .author("Paolo Marino")
+        .author(crate_authors!("\n"))
         .about("Simple utility that removes file older than a certain amount of days.")
         .arg(
             Arg::new("age")

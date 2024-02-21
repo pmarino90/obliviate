@@ -9,7 +9,7 @@ use std::fs::{read_dir, DirEntry};
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime};
 
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 use humansize::{format_size, DECIMAL};
 use log::Level;
 
@@ -119,7 +119,7 @@ fn main() {
             Arg::new("dry-run")
                 .short('d')
                 .long("dry-run")
-                .num_args(0)
+                .action(ArgAction::SetTrue)
                 .help("When provided no files are deleted."),
         )
         .arg(
@@ -133,15 +133,15 @@ fn main() {
             Arg::new("verbose")
                 .short('v')
                 .long("verbose")
-                .num_args(0)
+                .action(ArgAction::SetTrue)
                 .help("Outputs verbose logs to track which files are deleted."),
         )
         .get_matches();
 
     // NOTE: This will always return Some(value) if default_value has been set.
     let age: u64 = *matches.get_one("age").expect("Age option should always exist");
-    let dry_run = matches.contains_id("dry-run");
-    let verbose = matches.contains_id("verbose");
+    let dry_run = matches.get_flag("dry-run");
+    let verbose = matches.get_flag("verbose");
     let log_level = if verbose { Level::Trace } else { Level::Info };
 
     let start_path: &String = matches

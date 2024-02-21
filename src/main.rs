@@ -5,7 +5,7 @@ extern crate clap;
 extern crate humansize;
 extern crate simple_logger;
 
-use std::fs::{read_dir, DirEntry};
+use std::fs::{read_dir, Metadata};
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime};
 
@@ -63,27 +63,26 @@ fn delete_files(start_path: PathBuf, collected_files: Vec<CollectedFile>, dry_ru
 fn find_files_to_delete(folder_path: PathBuf, age: u64) -> Vec<CollectedFile> {
     let dir_content = read_dir(folder_path).unwrap();
     let today = SystemTime::now();
-    let days_ago = (today - Duration::from_secs(age.parse::<u64>().unwrap_or(30) * DAY))
+    let days_ago = (today - Duration::from_secs(age * DAY))
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();
 
     let files_and_folders = dir_content.map(|result| {
-        let entry = result.unwrap();
-
-        return entry;
+        let res = result.unwrap();
+        (res.path(), res.metadata().unwrap())
     });
 
-    let (folders, files): (Vec<DirEntry>, Vec<DirEntry>) =
-        files_and_folders.partition(|entry| entry.metadata().unwrap().is_dir());
+    let (folders, files): (Vec<(PathBuf, Metadata)>, Vec<(PathBuf, Metadata)>) =
+        files_and_folders.partition(|entry| entry.1.is_dir());
 
     let files_in_folders = folders
         .into_iter()
-        .flat_map(|entry| find_files_to_delete(entry.path(), age));
+        .flat_map(|entry| find_files_to_delete(entry.0, age));
 
     let files_to_delete = files
         .into_iter()
         .filter(|entry| {
-            let metadata = entry.metadata().unwrap();
+            let metadata = &entry.1;
             let created_time = metadata
                 .created()
                 .unwrap_or(metadata.modified().expect("The entry does not have a created or modified time"))
@@ -93,8 +92,8 @@ fn find_files_to_delete(folder_path: PathBuf, age: u64) -> Vec<CollectedFile> {
             created_time <= days_ago
         })
         .map(|entry| CollectedFile {
-            path: entry.path(),
-            size: entry.metadata().unwrap().len(),
+            path: entry.0,
+            size: entry.1.len(),
         });
 
     return files_to_delete.chain(files_in_folders).collect();

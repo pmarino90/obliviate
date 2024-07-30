@@ -1,7 +1,7 @@
 [package]
 name = "obliviate"
-version = "0.1.4"
-authors = ["Paolo Marino"]
+version = "0.2.0"
+authors = ["Paolo Marino", "William Desportes"]
 edition = "2021"
 readme = "README.md"
 license = "MIT"

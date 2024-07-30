@@ -16,10 +16,10 @@ Obliviate
 Paolo Marino
 Simple utility that removes file older than a certain amount of days.
 
-Usage: obliviate [OPTIONS] <PATH>
+Usage: obliviate [OPTIONS] <PATH>...
 
 Arguments:
-  <PATH>  Path where to look for files to delete.
+  <PATH>...  Path(s) where to look for files to delete.
 
 Options:
   -a, --age <AGE>  Number of days the file should be old to be removed. [default: 30]
@@ -31,6 +31,12 @@ Options:
 ```
 
 ## Changelog
+
+`0.2.0`
+
+- Bump libraries
+- Support multiple paths
+- Improve performances
 
 `0.1.2`
 

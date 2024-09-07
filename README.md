@@ -38,13 +38,13 @@ Options:
 - Support multiple paths
 - Improve performances
 
-`0.1.2`
-
-- Main usable version
-
 `0.1.3`
 
 - Remove empty folder after removing files
+
+`0.1.2`
+
+- Main usable version
 
 ## Note
 

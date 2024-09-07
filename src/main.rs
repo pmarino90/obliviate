@@ -54,10 +54,7 @@ fn delete_files(start_path: PathBuf, collected_files: Vec<CollectedFile>, dry_ru
         deleted_bytes += file.size;
     }
 
-    info!(
-        "Deleted {}.",
-        format_size(deleted_bytes, DECIMAL)
-    );
+    info!("Deleted {}.", format_size(deleted_bytes, DECIMAL));
 }
 
 fn find_files_to_delete(folder_path: PathBuf, age: u64) -> Vec<CollectedFile> {
@@ -85,7 +82,11 @@ fn find_files_to_delete(folder_path: PathBuf, age: u64) -> Vec<CollectedFile> {
             let metadata = &entry.1;
             let created_time = metadata
                 .created()
-                .unwrap_or(metadata.modified().expect("The entry does not have a created or modified time"))
+                .unwrap_or(
+                    metadata
+                        .modified()
+                        .expect("The entry does not have a created or modified time"),
+                )
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap();
 
@@ -123,9 +124,9 @@ fn main() {
         )
         .arg(
             Arg::new("PATH")
-                .help("Path where to look for files to delete.")
+                .help("Path(s) where to look for files to delete.")
                 .required(true)
-                .num_args(1)
+                .num_args(1..)
                 .index(1),
         )
         .arg(
@@ -138,20 +139,25 @@ fn main() {
         .get_matches();
 
     // NOTE: This will always return Some(value) if default_value has been set.
-    let age: u64 = *matches.get_one("age").expect("Age option should always exist");
+    let age: u64 = *matches
+        .get_one("age")
+        .expect("Age option should always exist");
     let dry_run = matches.get_flag("dry-run");
     let verbose = matches.get_flag("verbose");
     let log_level = if verbose { Level::Trace } else { Level::Info };
 
-    let start_path: &String = matches
-        .get_one::<String>("PATH")
-        .expect("A path is expected to start looking for files.");
+    let folders: Vec<&String> = matches
+        .get_many::<String>("PATH")
+        .expect("A path is expected to start looking for files.")
+        .collect();
 
     simple_logger::init_with_level(log_level).unwrap();
 
-    info!("Reading folder: {}", start_path);
+    for folder in folders {
+        info!("Reading folder: {}", folder);
 
-    let files_to_delete = find_files_to_delete(PathBuf::from(start_path), age);
+        let files_to_delete = find_files_to_delete(PathBuf::from(folder), age);
 
-    delete_files(PathBuf::from(start_path), files_to_delete, dry_run);
+        delete_files(PathBuf::from(folder), files_to_delete, dry_run);
+    }
 }
